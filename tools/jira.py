@@ -2,14 +2,11 @@ import os
 from typing import Optional, Union, Dict, Any
 
 from atlassian import Jira
-from dotenv import load_dotenv
 from langchain_core.tools.base import ArgsSchema
 from loguru import logger
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field
 
 from tools.base import AutoSreAgentBaseTool
-
-load_dotenv("/Users/suyog/personal/sreAgent/.env")
 
 
 class JiraTicketInput(BaseModel):

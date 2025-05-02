@@ -1,0 +1,51 @@
+[2025-05-01 17:44:43.055] [ERROR] [RequestID: 141e496c-6f90-4e69-9cd7-10fd536a631c] [host: suyogs-MacBook-Air.local] Unhandled exception during /api/auth request processing: ConnectionResetError: Connection reset by peer while fetching data from cache server
+Traceback (most recent call last):
+  File "/app/banking/api/controllers.py", line 83, in process_request
+    response = await service.execute_transaction(transaction_data)
+  File "/app/banking/service/transaction_service.py", line 191, in execute_transaction
+    result = await self.repository.commit(validated_data)
+  File "/app/banking/repository/transaction_repo.py", line 133, in commit
+    async with self.db_pool.acquire() as connection:
+        return await self._execute_transaction(connection, data)
+  File "/app/banking/repository/base.py", line 102, in _execute_transaction
+    await self._ensure_connection_healthy(conn)
+  File "/app/banking/infrastructure/db/connection.py", line 87, in _ensure_connection_healthy
+    await conn.execute("SELECT 1")
+  File "/usr/local/lib/python3.9/site-packages/asyncpg/connection.py", line 1114, in execute
+    return await self._protocol.query(query, timeout)
+  File "/usr/local/lib/python3.9/site-packages/asyncpg/protocol.py", line 265, in query
+    raise ConnectionResetError("Connection reset by peer while fetching data from cache server")
+[2025-05-01 17:44:44.440] [ERROR] [RequestID: 9790004d-0868-4dba-aea4-e2c677d2568c] [host: suyogs-MacBook-Air.local] Unhandled exception during /api/payments request processing: ConnectionRefusedError: Failed to connect to database primary at 10.45.2.8:5432
+Traceback (most recent call last):
+  File "/app/banking/api/controllers.py", line 176, in process_request
+    response = await service.execute_transaction(transaction_data)
+  File "/app/banking/service/transaction_service.py", line 126, in execute_transaction
+    result = await self.repository.commit(validated_data)
+  File "/app/banking/repository/transaction_repo.py", line 374, in commit
+    async with self.db_pool.acquire() as connection:
+        return await self._execute_transaction(connection, data)
+  File "/app/banking/repository/base.py", line 75, in _execute_transaction
+    await self._ensure_connection_healthy(conn)
+  File "/app/banking/infrastructure/db/connection.py", line 60, in _ensure_connection_healthy
+    await conn.execute("SELECT 1")
+  File "/usr/local/lib/python3.9/site-packages/asyncpg/connection.py", line 1245, in execute
+    return await self._protocol.query(query, timeout)
+  File "/usr/local/lib/python3.9/site-packages/asyncpg/protocol.py", line 220, in query
+    raise ConnectionRefusedError("Failed to connect to database primary at 10.45.2.8:5432")
+[2025-05-01 17:44:44.684] [WARNING] [RequestID: 5eccf3b1-65c3-47a5-b84e-7b625ce4b591] POST /api/transactions - User: user_1010 - Session: e9af5558-8214-4796-ad7d-54fc50d1d13f - IP: 27.24.184.223 - Status: 400 - Time: 1.211ms
+[2025-05-01 17:44:47.815] [INFO] [RequestID: ad9ca311-c3c8-494d-af3b-7ae1332f3243] DELETE /api/transactions - User: user_1002 - Session: b2d14b50-5e26-4d12-b650-0a549d24a4cc - IP: 105.45.196.35 - Status: 200 - Time: 1.817ms
+[2025-05-01 17:44:48.172] [INFO] [RequestID: f4b092b5-a94d-41a1-9987-ef971b6570e4] GET /api/profile - User: user_1026 - Session: 40618d6e-5671-4799-a390-dae1ee153644 - IP: 138.246.81.53 - Status: 200 - Time: 0.152ms
+[2025-05-01 17:44:50.097] [INFO] [Auth] User user_1017 successfully logged in from 147.67.138.34 - Session: c989bc3a-4dc1-4fd5-ab94-dbffd544f7b5
+[2025-05-01 17:44:52.514] [INFO] [RequestID: c69b151d-ccd7-4922-91a5-d40b115072a5] POST /api/accounts - User: user_1031 - Session: 0a39d9f3-6fb5-4b88-862c-3ca1b021d73d - IP: 169.92.223.164 - Status: 200 - Time: 1.102ms
+[2025-05-01 17:44:54.456] [INFO] [RequestID: 80031e08-2eba-4c82-9207-0dced1c35d2a] POST /api/settings - User: user_1021 - Session: 71223650-d572-44d0-85a9-4240ab5a8313 - IP: 49.67.127.189 - Status: 200 - Time: 1.027ms
+[2025-05-01 17:44:54.886] [INFO] [ReportingEngine] [suyogs-MacBook-Air.local] [PID:3184] Scheduled maintenance completed in 1.5 seconds
+[2025-05-01 17:44:57.602] [INFO] [RequestID: d0cff5d6-3c22-4f52-b50f-4a5a9a368947] POST /api/settings - User: user_1023 - Session: df683208-6f73-488b-b8cf-ba1c9d610cc3 - IP: 51.247.60.99 - Status: 200 - Time: 0.921ms
+[2025-05-01 17:45:00.635] [INFO] [RequestID: 19035d04-f955-4949-9756-3ea7be9482f7] PUT /api/settings - User: user_1025 - Session: 441a0c3a-512f-47c9-8202-fc3b8b1bfee0 - IP: 78.102.214.150 - Status: 200 - Time: 0.66ms
+[2025-05-01 17:45:03.888] [INFO] [Auth] User user_1047 successfully logged in from 177.156.247.231 - Session: 9f8a5965-0b60-4b0c-9179-ecd647bb740f
+[2025-05-01 17:45:06.679] [INFO] [Auth] User user_1009 successfully logged in from 166.144.26.223 - Session: 314614b3-6c77-4f3d-9d87-2a594cf2c49e
+[2025-05-01 17:45:08.130] [INFO] [TransactionID: 713EB9CAFE36482C] user_1006 TRANSFER $2657.46 from ACCT-47743123 to ACCT-38454641 - SUCCESS
+[2025-05-01 17:45:08.840] [WARNING] [TransactionProcessor] [suyogs-MacBook-Air.local] [PID:6237] Deprecated API endpoint accessed: /api/v1/legacy
+[2025-05-01 17:45:09.213] [INFO] [TransactionID: C9308A118AE7447D] user_1008 BILL_PAYMENT $2510.86 in account ACCT-13874586 - SUCCESS
+[2025-05-01 17:45:12.108] [INFO] [Auth] User user_1017 successfully logged in from 175.2.192.235 - Session: 25e7e537-a236-41d8-ae92-dd6c07b7ec7f
+[2025-05-01 17:45:13.973] [INFO] [RequestID: 6d411e84-4c63-4a64-9caa-474731e422f4] PUT /api/payments - User: user_1031 - Session: 0a39d9f3-6fb5-4b88-862c-3ca1b021d73d - IP: 148.184.216.61 - Status: 200 - Time: 1.806ms
+[2025-05-01 17:45:17.861] [INFO] [RequestID: d42b7967-3ee8-4a8c-9bbf-b87fc8526cea] DELETE /api/settings - User: user_1037 - Session: 438aaa96-e5d8-40a0-86f6-ee1a6d2ace60 - IP: 171.24.46.229 - Status: 200 - Time: 0.293ms

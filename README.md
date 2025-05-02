@@ -1,33 +1,43 @@
 # Automated SRE Agent
 
-An automated SRE tool that monitors application logs, detects errors, and handles incident management (for now just creates jira tickets).
+An automated Site Reliability Engineering (SRE) tool that monitors application logs, detects errors, and automates incident management by creating Jira tickets.
 
-## Features
+## 🔧 Features
 
 - Continuous log monitoring for error detection
-- Error fingerprinting to avoid duplicate issue processing
-- Automatic error investigation using StackExchange
-- Jira ticket creation for identified issues
-- Intelligent oncall employee routing
+- Intelligent detection of on-call employees
+- Automatic Jira ticket creation and assignment to appropriate personnel
 
-## Configuration
+You can see an end-to-end execution demo in [`experimental/exp.ipynb`](experimental/exp.ipynb).
 
-Set the following api keys:
+The script [`main.py`](main.py) runs continuously, periodically scanning the log file for new errors.
 
-```
-OPENAI_API_KEY=your_openai_key
-JIRA_API_TOKEN=your_jira_token
-STACKEXCHANGE_KEY=your_stackexchange_key
-```
+---
 
-Also set the following config env files:
-`MONITORING_INTERVAL` to control check frequency (default: 60 seconds)
-`LOG_FILE_PATH` to target specific log files
+## ⚙️ Configuration
 
-## Testing
+To get started:
 
-If you do not have a log file, xthere is a helper file in `utils/random_log_generator.py` which kind of does what its name says ;)
+1. Copy `.env.example` to `.env` and fill in the necessary configuration values.
 
-## Footnotes
+Additional configuration options:
 
-This was created as a part of course project requirement for CS 595 - TCPS: MLOps for Generative AI.
+- `MONITORING_INTERVAL` – Time interval (in seconds) between log checks (default: `60`)
+- `LOG_FILE_PATH` – Path to the log file to monitor
+
+---
+
+## 🧪 Testing
+
+If you don’t have a log file to test with:
+
+- Use the helper script [`utils/random_log_generator.py`](utils/random_log_generator.py) to generate synthetic logs.
+- Or, simply try with the provided sample log file: [`output/logs.log`](output/logs.log)
+
+---
+
+## 📌 Footnotes
+
+This project was developed as part of the course **CS 595 - TCPS: MLOps for Generative AI**.
+
+Special thanks to [Professor Santosh Nukavarapu](https://www.odu.edu/directory/santosh-nukavarapu) for such interesting project!
