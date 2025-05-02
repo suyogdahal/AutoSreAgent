@@ -1,95 +1,98 @@
 import os
-import requests
-from typing import Optional, Dict, Any, Type
+from typing import Optional, Union
+
+from atlassian import Jira
+from dotenv import load_dotenv
+from langchain_core.tools.base import ArgsSchema
+from loguru import logger
 from pydantic import BaseModel, Field
-from langchain.tools import BaseTool
+
+from base import AutoSreAgentBaseTool
+
+load_dotenv("/Users/suyog/personal/sreAgent/.env")
 
 
 class JiraTicketInput(BaseModel):
-    """Inputs for creating a Jira ticket."""
-
-    project_key: str = Field(
-        ...,
-        description="The project key where the ticket should be created (e.g., 'SRE')",
+    summary: str = Field(..., description="Summary/title of the Jira ticket")
+    description: str = Field(..., description="Detailed description of the Jira ticket")
+    issue_type: Optional[str] = Field(
+        default="Task", description="Type of issue (e.g., 'Bug')"
     )
-    summary: str = Field(..., description="The summary/title of the Jira ticket")
-    description: str = Field(
-        ..., description="The detailed description of the Jira ticket"
-    )
-    issue_type: str = Field(
-        default="Task", description="The type of issue (e.g., 'Bug', 'Task', 'Story')"
-    )
-    priority: Optional[str] = Field(
-        default="Medium",
-        description="Priority of the ticket (e.g., 'High', 'Medium', 'Low')",
-    )
-    assignee: Optional[str] = Field(
-        default=None, description="Username of the assignee"
-    )
+    assignee: Optional[str] = Field(default=None, description="Assignee's username")
 
 
-class CreateJiraTicketTool(BaseTool):
-    """Tool that creates a Jira ticket."""
-
+class CreateJiraTicketTool(AutoSreAgentBaseTool):
     name: str = "create_jira_ticket"
     description: str = """
-    Use this tool to create a Jira ticket when there's an issue that needs to be tracked or work that needs to be done.
-    Provide project key, summary, description, and optionally issue type, priority, and assignee.
+    Use this tool to create a Jira ticket with a summary, description,
+    and optionally issue type, and assignee.
     """
-    args_schema: Type[BaseModel] = JiraTicketInput
+    args_schema: Optional[ArgsSchema] = JiraTicketInput
+    jira_base_url: str = os.environ.get("JIRA_BASE_URL")
+    jira_email: str = os.environ.get("JIRA_EMAIL")
+    jira_api_token: str = os.environ.get("JIRA_API_TOKEN")
+    jira_project_name: str = os.environ.get("JIRA_PROJECT_NAME")
 
-    def _run(
-        self,
-        project_key: str,
-        summary: str,
-        description: str,
-        issue_type: str = "Task",
-        priority: str = "Medium",
-        assignee: Optional[str] = None,
-    ) -> str:
-        """Create a Jira ticket with the specified details."""
-        # Get Jira credentials from environment variables
-        jira_base_url = os.environ.get("JIRA_BASE_URL")
-        jira_email = os.environ.get("JIRA_EMAIL")
-        jira_api_token = os.environ.get("JIRA_API_TOKEN")
+    def _run(self, ip: Union[str | dict]) -> str:
+        if not all(
+            [
+                self.jira_base_url,
+                self.jira_email,
+                self.jira_api_token,
+                self.jira_project_name,
+            ]
+        ):
+            return (
+                "Error: Jira credentials are not properly set in environment variables"
+            )
 
-        if not all([jira_base_url, jira_email, jira_api_token]):
-            return "Error: Jira credentials not found in environment variables"
+        parsed_input = self._input_parser(ip)
+        summary, description, issue_type, assignee = (
+            parsed_input.summary,
+            parsed_input.description,
+            parsed_input.issue_type,
+            parsed_input.assignee,
+        )
 
-        # Prepare the request
-        url = f"{jira_base_url}/rest/api/2/issue/"
-        auth = (jira_email, jira_api_token)
+        logger.debug(
+            f"Connecting to JIRA at {self.jira_base_url} with user {self.jira_email}"
+        )
+        jira = Jira(
+            url=self.jira_base_url,
+            username=self.jira_email,
+            password=self.jira_api_token,
+            cloud=True,
+        )
 
-        # Prepare the payload
-        payload: Dict[str, Any] = {
-            "fields": {
-                "project": {"key": project_key},
-                "summary": summary,
-                "description": description,
-                "issuetype": {"name": issue_type},
-                "priority": {"name": priority},
-            }
+        fields = {
+            "project": {"key": self.jira_project_name},
+            "summary": summary,
+            "description": description,
+            "issuetype": {"name": issue_type or "Task"},
         }
 
-        # Add assignee if provided
         if assignee:
-            payload["fields"]["assignee"] = {"name": assignee}
+            fields["assignee"] = {"name": assignee}
 
         try:
-            response = requests.post(
-                url,
-                json=payload,
-                auth=auth,
-                headers={"Content-Type": "application/json"},
-            )
-            response.raise_for_status()
-            data = response.json()
-            ticket_id = data.get("key")
-            ticket_url = f"{jira_base_url}/browse/{ticket_id}"
-            return f"Successfully created Jira ticket: {ticket_id}. View it here: {ticket_url}"
-        except requests.exceptions.RequestException as e:
+            result = jira.issue_create(fields=fields)
+            ticket_key = result.get("key")
+            ticket_url = f"{self.jira_base_url}/browse/{ticket_key}"
+            return f"Successfully created Jira ticket: {ticket_key}. View it here: {ticket_url}"
+        except Exception as e:
+            logger.exception("Failed to create Jira ticket")
             return f"Error creating Jira ticket: {str(e)}"
 
     def _arun(self, query: str):
-        """Async implementation would go here."""
         raise NotImplementedError("This tool does not support async")
+
+
+if __name__ == "__main__":
+    tool = CreateJiraTicketTool()
+    ticket_input = {
+        "summary": "Connection reset by peer while fetching data from cache server",
+        "description": "An error occurred while processing the /api/auth request. ConnectionResetError indicates that the cache server connection was closed unexpectedly. Please investigate the status of the cache server, ensuring it is operational and not overloaded.",
+        "assignee": "alice.johnson@example.com",
+    }
+    result = tool._run(ticket_input)
+    print(result)

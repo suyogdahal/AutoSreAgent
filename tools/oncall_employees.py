@@ -1,6 +1,11 @@
-from typing import List, Dict, Any, Type
-from pydantic import BaseModel, Field
+from typing import Any, Dict, List, Optional, Type, Union
+
 from langchain.tools import BaseTool
+from langchain_core.tools.base import ArgsSchema
+from loguru import logger
+from pydantic import BaseModel, Field
+
+from tools.base import AutoSreAgentBaseTool
 
 
 class OncallEmployee(BaseModel):
@@ -13,23 +18,23 @@ class OncallEmployee(BaseModel):
 class OncallTeamInput(BaseModel):
     """Input for fetching oncall employees."""
 
-    team: str = Field(
+    team_name: Optional[str] = Field(
         default=None,
-        description="Team name to filter oncall employees by. If not provided, returns all oncall employees.",
+        description="Team's name to filter oncall employees by. If not provided, returns all oncall employees.",
     )
 
 
-class GetOncallEmployeesTool(BaseTool):
+class GetOncallEmployeesTool(AutoSreAgentBaseTool):
     """Tool that returns the list of employees currently on-call."""
 
     name: str = "get_oncall_employees"
     description: str = """
     Use this tool to get information about which employees are currently on-call.
-    You can optionally specify a team name to filter the results. 
+    You can optionally specify a team_name to filter the results. 
     Returns a list of on-call employees with their name, email, role and team.
     Valid team names: Infrastructure, Platform, Reliability, API Services, Data Platform.
     """
-    args_schema: Type[BaseModel] = OncallTeamInput
+    args_schema: ArgsSchema = OncallTeamInput
 
     # Define allowed team names as a class attribute
     ALLOWED_TEAMS: List[str] = [
@@ -83,34 +88,29 @@ class GetOncallEmployeesTool(BaseTool):
             },
         ]
 
-    def _run(self, team: str = None) -> str:
+    def _run(self, ip: Union[str | dict]) -> str:
         """
-        Return the list of on-call employees, optionally filtered by team.
+        Return the list of on-call employees, optionally filtered by team_name.
 
         Args:
-            team (str, optional): Team name to filter by
+            team_name (str, optional): Team name to filter by
 
         Returns:
             str: Formatted list of on-call employees
         """
-        if team:
-            # Check if provided team is in allowed teams (case-insensitive check)
-            matching_teams = [
-                t for t in self.ALLOWED_TEAMS if t.lower() == team.lower()
-            ]
-            if not matching_teams:
-                return (
-                    f"Error: '{team}' is not a valid team name. "
-                    f"Valid team names are: {', '.join(self.ALLOWED_TEAMS)}"
-                )
+        parsed_input = self._input_parser(ip=ip)
+        team = parsed_input.team_name
+        if team not in self.ALLOWED_TEAMS:
+            logger.warning(
+                f"Invalid team name provided: {team}. Ignoring the filter ..."
+                f"Valid team names are: {', '.join(self.ALLOWED_TEAMS)}"
+            )
+            team = None
 
-            # Use the correctly cased team name
-            correct_team_name = matching_teams[0]
-            oncall_list = [
-                emp for emp in self._oncall_roster if emp["team"] == correct_team_name
-            ]
+        if team:
+            oncall_list = [emp for emp in self._oncall_roster if emp["team"] == team]
             if not oncall_list:
-                return f"No on-call employees found for team '{correct_team_name}'."
+                return f"No on-call employees found for team '{team}'."
         else:
             oncall_list = self._oncall_roster
 
@@ -129,3 +129,9 @@ class GetOncallEmployeesTool(BaseTool):
     def _arun(self, team: str = None):
         """Async implementation would go here."""
         raise NotImplementedError("This tool does not support async")
+
+
+if __name__ == "__main__":
+    tool = GetOncallEmployeesTool()
+    result = tool._run(ip="team_name='Infrastructure' ")
+    print(result)

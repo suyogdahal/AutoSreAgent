@@ -6,14 +6,14 @@ from pathlib import Path
 
 from langchain import hub
 from langchain.agents import AgentExecutor, create_react_agent
-from langchain_openai import OpenAI
-from langchain_community.utilities.stackexchange import StackExchangeAPIWrapper
+from langchain_openai import ChatOpenAI
 from dotenv import load_dotenv
 
 # Import custom tools
 from tools.oncall_employees import GetOncallEmployeesTool
 from tools.jira import CreateJiraTicketTool
 from tools.file import FilteredLogReaderTool
+from tools.stack_exchange import StackExchangeTool
 
 # Load environment variables
 load_dotenv()
@@ -32,8 +32,7 @@ last_check_time = None
 
 def setup_agent():
     """Set up the ReAct agent with the necessary tools."""
-    # Initialize LLM
-    llm = OpenAI(temperature=0)
+    llm = ChatOpenAI()
 
     # Load ReAct prompt
     prompt = hub.pull("hwchase17/react")
@@ -41,7 +40,7 @@ def setup_agent():
     # Initialize tools
     tools = [
         FilteredLogReaderTool(log_file_path=LOG_FILE_PATH),
-        StackExchangeAPIWrapper(),
+        StackExchangeTool(),
         GetOncallEmployeesTool(),
         CreateJiraTicketTool(),
     ]
@@ -55,7 +54,7 @@ def setup_agent():
         tools=tools,
         verbose=True,
         handle_parsing_errors=True,
-        max_iterations=10,
+        max_iterations=3,
     )
 
     return agent_executor
