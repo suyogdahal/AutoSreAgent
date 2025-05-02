@@ -78,11 +78,17 @@ class StackExchangeTool(BaseTool):
 
 # Example usage:
 if __name__ == "__main__":
-    stack_exchange_tool = StackExchangeTool()
-    result = stack_exchange_tool.run("How to fix Docker container connection refused")
-    print(result)
+    # stack_exchange_tool = StackExchangeTool()
+    # result = stack_exchange_tool.run("How to fix Docker container connection refused")
+    # print(result)
 
-    # Advanced usage with parameters
-    query = '{"query": "Kubernetes troubleshooting guide", "site": "devops", "max_results": 3}'
-    result = stack_exchange_tool.run(query)
-    print(result)
+    # # Advanced usage with parameters
+    # query = '{"query": "Kubernetes troubleshooting guide", "site": "devops", "max_results": 3}'
+    # result = stack_exchange_tool.run(query)
+    # print(result)
+    q = "How to handle Kubernetes CrashLoopBackOff"
+    print(q)
+    op = StackExchangeAPIWrapper().run(
+        q,
+    )
+    print(op)
