@@ -34,6 +34,7 @@ class AutoSreAgentBaseTool(BaseTool):
                 values = eval(ip)
                 return self.args_schema(**values)
             else:
-                raise ValueError(f"Cannot parse the input string {ip}")
+                logger.warning(f"Cannot parse the input string {ip}")
+                return self.args_schema()
         else:
             raise ValueError("Input must be either a dictionary or string")

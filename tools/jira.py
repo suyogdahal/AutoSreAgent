@@ -1,39 +1,48 @@
 import os
-from typing import Optional, Union
+from typing import Optional, Union, Dict, Any
 
 from atlassian import Jira
 from dotenv import load_dotenv
 from langchain_core.tools.base import ArgsSchema
 from loguru import logger
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
-from base import AutoSreAgentBaseTool
+from tools.base import AutoSreAgentBaseTool
 
 load_dotenv("/Users/suyog/personal/sreAgent/.env")
 
 
 class JiraTicketInput(BaseModel):
-    summary: str = Field(..., description="Summary/title of the Jira ticket")
-    description: str = Field(..., description="Detailed description of the Jira ticket")
+    summary: Optional[str] = Field(
+        default=None, description="Summary/title of the Jira ticket"
+    )
+    description: Optional[str] = Field(
+        default=None, description="Detailed description of the Jira ticket"
+    )
     issue_type: Optional[str] = Field(
         default="Task", description="Type of issue (e.g., 'Bug')"
     )
     assignee: Optional[str] = Field(default=None, description="Assignee's username")
 
+    class Config:
+        # couldn't figure out how to get around langchain's validator (which was shit), so here's the workaround lol
+        # langchain 🤷 🤦‍♂️, if it wasn't for my assignment, i would've used something better
+        validation = False
+
 
 class CreateJiraTicketTool(AutoSreAgentBaseTool):
     name: str = "create_jira_ticket"
     description: str = """
-    Use this tool to create a Jira ticket with a summary, description,
-    and optionally issue type, and assignee.
+    Use this tool to create a Jira ticket. Provide 'summary', 'description',
+    and optionally 'issue_type', and 'assignee'.
     """
-    args_schema: Optional[ArgsSchema] = JiraTicketInput
+    args_schema: ArgsSchema = JiraTicketInput
     jira_base_url: str = os.environ.get("JIRA_BASE_URL")
     jira_email: str = os.environ.get("JIRA_EMAIL")
     jira_api_token: str = os.environ.get("JIRA_API_TOKEN")
     jira_project_name: str = os.environ.get("JIRA_PROJECT_NAME")
 
-    def _run(self, ip: Union[str | dict]) -> str:
+    def _run(self, ip: Union[str | dict], **kwargs) -> str:
         if not all(
             [
                 self.jira_base_url,
@@ -89,10 +98,10 @@ class CreateJiraTicketTool(AutoSreAgentBaseTool):
 
 if __name__ == "__main__":
     tool = CreateJiraTicketTool()
-    ticket_input = {
+    ticket_input = """{
         "summary": "Connection reset by peer while fetching data from cache server",
         "description": "An error occurred while processing the /api/auth request. ConnectionResetError indicates that the cache server connection was closed unexpectedly. Please investigate the status of the cache server, ensuring it is operational and not overloaded.",
         "assignee": "alice.johnson@example.com",
-    }
+    }"""
     result = tool._run(ticket_input)
     print(result)
