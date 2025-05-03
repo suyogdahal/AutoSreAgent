@@ -2,6 +2,8 @@
 
 An automated Site Reliability Engineering (SRE) tool that monitors application logs, detects errors, and automates incident management by creating Jira tickets.
 
+![Architecture](docs/architecture.png)
+
 ## 🔧 Features
 
 - Continuous log monitoring for error detection
