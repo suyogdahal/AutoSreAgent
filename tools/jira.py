@@ -1,5 +1,5 @@
 import os
-from typing import Any, Dict, Optional, Union
+from typing import Optional, Union
 
 from atlassian import Jira
 from langchain_core.tools.base import ArgsSchema
