@@ -1,12 +1,12 @@
 import os
-from typing import Optional, Union, Dict, Any
+from typing import Any, Dict, Optional, Union
 
 from atlassian import Jira
 from langchain_core.tools.base import ArgsSchema
-from loguru import logger
 from pydantic import BaseModel, Field
 
 from tools.base import AutoSreAgentBaseTool
+from utils.logger import logger
 
 
 class JiraTicketInput(BaseModel):

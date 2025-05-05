@@ -15,7 +15,7 @@ Traceback (most recent call last):
     return await self._protocol.query(query, timeout)
   File "/usr/local/lib/python3.9/site-packages/asyncpg/protocol.py", line 265, in query
     raise ConnectionResetError("Connection reset by peer while fetching data from cache server")
-[2025-05-01 17:44:44.440] [ERROR] [RequestID: 9790004d-0868-4dba-aea4-e2c677d2568c] [host: suyogs-MacBook-Air.local] Unhandled exception during /api/payments request processing: ConnectionRefusedError: Failed to connect to database primary at 10.45.2.8:5432
+[2025-05-01 17:44:45.440] [ERROR] [RequestID: 9790004d-0868-4dba-aea4-e2c677d2568c] [host: suyogs-MacBook-Air.local] Unhandled exception during /api/payments request processing: ConnectionRefusedError: Failed to connect to database primary at 10.45.2.8:5432
 Traceback (most recent call last):
   File "/app/banking/api/controllers.py", line 176, in process_request
     response = await service.execute_transaction(transaction_data)
@@ -32,7 +32,7 @@ Traceback (most recent call last):
     return await self._protocol.query(query, timeout)
   File "/usr/local/lib/python3.9/site-packages/asyncpg/protocol.py", line 220, in query
     raise ConnectionRefusedError("Failed to connect to database primary at 10.45.2.8:5432")
-[2025-05-01 17:44:44.684] [WARNING] [RequestID: 5eccf3b1-65c3-47a5-b84e-7b625ce4b591] POST /api/transactions - User: user_1010 - Session: e9af5558-8214-4796-ad7d-54fc50d1d13f - IP: 27.24.184.223 - Status: 400 - Time: 1.211ms
+[2025-05-01 17:44:46.684] [WARNING] [RequestID: 5eccf3b1-65c3-47a5-b84e-7b625ce4b591] POST /api/transactions - User: user_1010 - Session: e9af5558-8214-4796-ad7d-54fc50d1d13f - IP: 27.24.184.223 - Status: 400 - Time: 1.211ms
 [2025-05-01 17:44:47.815] [INFO] [RequestID: ad9ca311-c3c8-494d-af3b-7ae1332f3243] DELETE /api/transactions - User: user_1002 - Session: b2d14b50-5e26-4d12-b650-0a549d24a4cc - IP: 105.45.196.35 - Status: 200 - Time: 1.817ms
 [2025-05-01 17:44:48.172] [INFO] [RequestID: f4b092b5-a94d-41a1-9987-ef971b6570e4] GET /api/profile - User: user_1026 - Session: 40618d6e-5671-4799-a390-dae1ee153644 - IP: 138.246.81.53 - Status: 200 - Time: 0.152ms
 [2025-05-01 17:44:50.097] [INFO] [Auth] User user_1017 successfully logged in from 147.67.138.34 - Session: c989bc3a-4dc1-4fd5-ab94-dbffd544f7b5

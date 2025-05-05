@@ -2,7 +2,7 @@ from typing import Any, Dict, List, Optional, Type, Union
 
 from langchain.tools import BaseTool
 from langchain_core.tools.base import ArgsSchema
-from loguru import logger
+from utils.logger import logger
 from pydantic import BaseModel, Field
 
 from tools.base import AutoSreAgentBaseTool

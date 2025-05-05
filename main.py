@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 from langchain import hub
 from langchain.agents import AgentExecutor, create_react_agent
 from langchain_openai import ChatOpenAI
-from loguru import logger
+from utils.logger import logger
 
 from tools.file import FilteredLogReaderTool
 from tools.jira import CreateJiraTicketTool

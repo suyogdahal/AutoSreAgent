@@ -3,7 +3,7 @@ from typing import Dict, Type, Union
 
 from langchain.tools import BaseTool
 from langchain_core.tools.base import ArgsSchema
-from loguru import logger
+from utils.logger import logger
 from pydantic import BaseModel
 
 
@@ -16,7 +16,7 @@ class AutoSreAgentBaseTool(BaseTool):
         Langchain agent gives input to the tool as either dictionary or string, so need this boiler plate to parse this
         This should've been handled natively by langchain 🤷
         """
-        logger.info(f"Parser recived input of type -> {type(ip)} \n value -> {ip}")
+        logger.debug(f"Parser recived input of type -> {type(ip)} \n value -> {ip}")
         keys = list(self.args_schema.model_fields.keys())
 
         if isinstance(ip, dict):
@@ -25,7 +25,7 @@ class AutoSreAgentBaseTool(BaseTool):
 
         elif isinstance(ip, str):
             pattern = ",\s*".join([f"{key}='([^']+)'" for key in keys])
-            logger.info(f"Checking for pattern {pattern}")
+            logger.debug(f"Checking for pattern {pattern}")
             match = re.search(pattern, ip)
             if match:
                 logger.debug(f"Regex patterns matched {match.groups()}")

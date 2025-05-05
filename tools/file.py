@@ -4,9 +4,10 @@ from pathlib import Path
 from typing import Optional, Union
 
 from langchain_core.tools.base import ArgsSchema
-from loguru import logger
 from pydantic import BaseModel, Field
+
 from tools.base import AutoSreAgentBaseTool
+from utils.logger import logger
 
 LOG_FILE_PATH = Path(
     "/Users/suyog/personal/sreAgent/output/logs.log"
@@ -65,7 +66,7 @@ class FilteredLogReaderTool(AutoSreAgentBaseTool):
         """Read log entries filtered by timestamp."""
         parsed_input = self._input_parser(ip)
         from_time, to_time = parsed_input.from_time, parsed_input.to_time
-        logger.info(
+        logger.debug(
             f"Reading logs with filters - from_time: {from_time}, to_time: {to_time}"
         )
 
@@ -102,7 +103,7 @@ class FilteredLogReaderTool(AutoSreAgentBaseTool):
 
                 if not from_dt and not to_dt:
                     # If no filtering, return all lines
-                    logger.info("No time filtering applied, returning all log entries")
+                    logger.debug("No time filtering applied, returning all log entries")
                     return "".join(all_lines)
 
                 filtered_lines = []
@@ -124,7 +125,7 @@ class FilteredLogReaderTool(AutoSreAgentBaseTool):
                     added_lines.add(idx)
                     filtered_lines.append(line)
 
-                logger.info(
+                logger.debug(
                     f"Filtered {len(filtered_lines)}/{len(all_lines)} log entries"
                 )
 
